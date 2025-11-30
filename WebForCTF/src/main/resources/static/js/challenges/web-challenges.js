@@ -23,8 +23,30 @@ class WebChallengesManager {
             if (e.target.matches('.validate-flag-btn')) {
                 this.validateFlag(e.target.dataset.challenge);
             }
-            // УДАЛЕНО: обработчик для show-solution-btn
         });
+
+        // Обработчики для кнопок управления заданиями
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('button')?.textContent.includes('Подсказка')) {
+                const challengeName = this.getCurrentChallengeName();
+                this.showHint(challengeName);
+            }
+            if (e.target.closest('button')?.textContent.includes('Проверить флаг')) {
+                const challengeName = this.getCurrentChallengeName();
+                this.showFlagValidationModal(challengeName);
+            }
+        });
+    }
+
+    getCurrentChallengeName() {
+        // Определяем текущее задание по URL
+        const path = window.location.pathname;
+        if (path.includes('/xss')) return 'XSS Challenge';
+        if (path.includes('/sqli')) return 'SQL Injection Basic';
+        if (path.includes('/auth-bypass')) return 'Authentication Bypass';
+        if (path.includes('/csrf')) return 'CSRF Challenge';
+        if (path.includes('/path-traversal')) return 'Path Traversal';
+        return 'Unknown Challenge';
     }
 
     // Универсальное модальное окно для заданий
@@ -263,7 +285,8 @@ class WebChallengesManager {
         }
 
         try {
-            const response = await fetch(`/challenges/${this.getChallengeEndpoint(challengeName)}/validate`, {
+            const endpoint = this.getChallengeEndpoint(challengeName);
+            const response = await fetch(`/challenges/${endpoint}/validate`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -294,7 +317,8 @@ class WebChallengesManager {
     // Универсальное окно подсказки
     async showHint(challengeName) {
         try {
-            const response = await fetch(`/challenges/${this.getChallengeEndpoint(challengeName)}/hint`);
+            const endpoint = this.getChallengeEndpoint(challengeName);
+            const response = await fetch(`/challenges/${endpoint}/hint`);
             const result = await response.json();
 
             this.createChallengeModal(
@@ -326,20 +350,16 @@ class WebChallengesManager {
         }
     }
 
-    // УДАЛЕН МЕТОД showSolution()
-
     getChallengeEndpoint(challengeName) {
         const endpoints = {
             'SQL Injection Basic': 'sqli',
             'Authentication Bypass': 'auth-bypass',
-            'XSS Challenge': 'xss',
+            'XSS Challenge': 'xss', // ДОБАВЛЕНО: endpoint для XSS
             'CSRF Challenge': 'csrf',
             'Path Traversal': 'path-traversal'
         };
         return endpoints[challengeName] || challengeName.toLowerCase().replace(' ', '-');
     }
-
-    // УДАЛЕН МЕТОД getChallengeSolution()
 
     markChallengeAsSolved(challengeName) {
         const solvedChallenges = JSON.parse(localStorage.getItem('solvedChallenges') || '{}');
@@ -348,6 +368,8 @@ class WebChallengesManager {
 
         // Обновляем UI если на странице категорий
         this.updateChallengeProgress();
+
+        CTFPlatform.showNotification(`🎉 Задание "${challengeName}" выполнено!`, 'success');
     }
 
     loadChallengeProgress() {
@@ -367,21 +389,27 @@ class WebChallengesManager {
     }
 
     updateChallengeProgress() {
-
         console.log('Challenge progress updated');
     }
 }
 
-
 function showChallengeHint(challengeName) {
     if (window.webChallengesManager) {
         window.webChallengesManager.showHint(challengeName);
+    } else {
+        // Fallback если менеджер не инициализирован
+        const manager = new WebChallengesManager();
+        manager.showHint(challengeName);
     }
 }
 
 function validateChallengeFlag(challengeName) {
     if (window.webChallengesManager) {
         window.webChallengesManager.showFlagValidationModal(challengeName);
+    } else {
+        // Fallback если менеджер не инициализирован
+        const manager = new WebChallengesManager();
+        manager.showFlagValidationModal(challengeName);
     }
 }
 

@@ -6,12 +6,14 @@
 class XSSChallenge {
     constructor() {
         this.comments = [];
+        this.flag = 'CTF{XSS_MASTER_2024}'; // Единый флаг
         this.init();
     }
 
     init() {
         this.initEventListeners();
         this.loadSampleComments();
+        this.checkExistingXSS();
     }
 
     initEventListeners() {
@@ -45,6 +47,24 @@ class XSSChallenge {
                 this.showXSSExamples();
             });
         }
+
+        // Обработчики для кнопок управления
+        const hintBtn = document.querySelector('button[onclick*="showChallengeHint"]');
+        const flagBtn = document.querySelector('button[onclick*="validateChallengeFlag"]');
+
+        if (hintBtn) {
+            hintBtn.onclick = null;
+            hintBtn.addEventListener('click', () => {
+                showChallengeHint('XSS Challenge');
+            });
+        }
+
+        if (flagBtn) {
+            flagBtn.onclick = null;
+            flagBtn.addEventListener('click', () => {
+                validateChallengeFlag('XSS Challenge');
+            });
+        }
     }
 
     loadSampleComments() {
@@ -65,6 +85,14 @@ class XSSChallenge {
         this.renderComments();
     }
 
+    checkExistingXSS() {
+        // Проверяем, не был ли уже выполнен XSS
+        const solvedChallenges = JSON.parse(localStorage.getItem('solvedChallenges') || '{}');
+        if (solvedChallenges['XSS Challenge']) {
+            this.showFlag(false); // Показываем флаг без анимации
+        }
+    }
+
     postComment() {
         const commentInput = document.getElementById('commentInput');
         if (!commentInput) return;
@@ -76,7 +104,7 @@ class XSSChallenge {
         }
 
         const newComment = {
-            id: this.comments.length + 1,
+            id: Date.now(),
             user: 'anonymous',
             text: text,
             timestamp: new Date()
@@ -159,22 +187,29 @@ class XSSChallenge {
         if (hasXSS) {
             CTFPlatform.showNotification('XSS payload detected! Good job!', 'success');
             this.showFlag();
+            this.markAsSolved();
 
             // Логируем успешную XSS атаку
             console.log('XSS Payload executed:', text);
         }
     }
 
-    showFlag() {
-        const flag = 'CTF{XSS_MASTER_2024}';
+    showFlag(animate = true) {
         const container = document.getElementById('commentsContainer');
         if (!container) return;
 
+        // Удаляем предыдущий флаг если есть
+        const existingFlag = container.querySelector('.flag-message');
+        if (existingFlag) {
+            existingFlag.remove();
+        }
+
         const flagElement = document.createElement('div');
         flagElement.className = 'comment flag-message';
-        flagElement.style.background = 'rgba(0, 255, 136, 0.1)';
-        flagElement.style.border = '1px solid var(--primary-color)';
-        flagElement.style.borderRadius = '8px';
+
+        if (animate) {
+            flagElement.style.animation = 'pulseSuccess 2s ease-in-out infinite';
+        }
 
         flagElement.innerHTML = `
             <div class="comment-meta">
@@ -183,13 +218,13 @@ class XSSChallenge {
             </div>
             <div class="comment-text">
                 🎉 Congratulations! You successfully executed an XSS attack!<br>
-                <strong style="color: var(--primary-color);">Flag: ${flag}</strong><br>
+                <strong style="color: var(--primary-color);">Flag: ${this.flag}</strong><br>
                 <small style="color: var(--text-secondary);">Click to copy the flag</small>
             </div>
         `;
 
         flagElement.addEventListener('click', () => {
-            CTFUtils.copyToClipboard(flag);
+            CTFUtils.copyToClipboard(this.flag);
             CTFPlatform.showNotification('Flag copied to clipboard!', 'success');
         });
 
@@ -199,7 +234,20 @@ class XSSChallenge {
         flagElement.scrollIntoView({ behavior: 'smooth' });
 
         // Автоматически копируем флаг в буфер обмена
-        CTFUtils.copyToClipboard(flag);
+        setTimeout(() => {
+            CTFUtils.copyToClipboard(this.flag);
+        }, 1000);
+    }
+
+    markAsSolved() {
+        if (window.webChallengesManager) {
+            window.webChallengesManager.markChallengeAsSolved('XSS Challenge');
+        } else {
+            // Fallback
+            const solvedChallenges = JSON.parse(localStorage.getItem('solvedChallenges') || '{}');
+            solvedChallenges['XSS Challenge'] = true;
+            localStorage.setItem('solvedChallenges', JSON.stringify(solvedChallenges));
+        }
     }
 
     resetComments() {
@@ -266,6 +314,15 @@ class XSSChallenge {
             exampleDiv.style.borderRadius = '4px';
             exampleDiv.style.border = '1px solid var(--border-color)';
             exampleDiv.textContent = `${index + 1}. ${example}`;
+
+            // Добавляем возможность копирования
+            exampleDiv.style.cursor = 'pointer';
+            exampleDiv.addEventListener('click', () => {
+                const payload = example.split(': ')[1];
+                CTFUtils.copyToClipboard(payload);
+                CTFPlatform.showNotification('Payload copied to clipboard!', 'success');
+            });
+
             examplesList.appendChild(exampleDiv);
         });
 
@@ -300,30 +357,6 @@ class XSSChallenge {
         });
 
         document.body.appendChild(modal);
-    }
-
-    // Метод для безопасного рендеринга (для сравнения)
-    renderCommentSafely(comment) {
-        const commentDiv = document.createElement('div');
-        commentDiv.className = 'comment';
-
-        const metaDiv = document.createElement('div');
-        metaDiv.className = 'comment-meta';
-        metaDiv.innerHTML = `
-            <strong>${CTFUtils.escapeHtml(comment.user)}</strong>
-            <span>${this.formatTime(comment.timestamp)}</span>
-        `;
-
-        const textDiv = document.createElement('div');
-        textDiv.className = 'comment-text';
-
-        // Безопасный рендеринг - экранируем HTML
-        textDiv.textContent = comment.text;
-
-        commentDiv.appendChild(metaDiv);
-        commentDiv.appendChild(textDiv);
-
-        return commentDiv;
     }
 }
 

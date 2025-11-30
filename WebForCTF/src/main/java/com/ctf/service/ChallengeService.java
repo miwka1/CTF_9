@@ -54,7 +54,7 @@ public class ChallengeService {
                     "web",
                     200,
                     "medium",
-                    "CTF{xss_m4st3r_2024}",
+                    "CTF{XSS_MASTER_2024}", // ИЗМЕНЕНО: синхронизирован с фронтендом
                     "Попробуйте вставить HTML теги с JavaScript в комментарии",
                     "Изучите различные типы XSS payloads и event handlers"
             );
