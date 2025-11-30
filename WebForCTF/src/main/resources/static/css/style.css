@@ -190,3 +190,152 @@ body {
     }
     .particle { animation: none !important; opacity: 0.1; }
 }
+
+/* ОБЩИЕ СТИЛИ ДЛЯ ЗАГОЛОВКОВ ЗАДАНИЙ */
+.challenge-header {
+    text-align: center !important;
+    padding: 3rem 0 2rem 0 !important;
+    margin-bottom: 2rem !important;
+}
+
+.challenge-title {
+    background: rgba(26, 26, 26, 0.8) !important;
+    padding: 2.5rem !important;
+    border-radius: 20px !important;
+    border: 2px solid var(--primary-color) !important;
+    backdrop-filter: blur(10px) !important;
+    box-shadow: 0 10px 40px rgba(0, 255, 136, 0.2) !important;
+    position: relative !important;
+    overflow: hidden !important;
+    max-width: 800px !important;
+    margin: 0 auto !important;
+}
+
+.challenge-title::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: -100% !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: linear-gradient(90deg, transparent, rgba(0, 255, 136, 0.1), transparent) !important;
+    transition: left 0.6s ease !important;
+}
+
+.challenge-title:hover::before {
+    left: 100% !important;
+}
+
+.challenge-icon {
+    font-size: 4rem !important;
+    margin-bottom: 1rem !important;
+    filter: drop-shadow(0 0 20px rgba(0, 255, 136, 0.5)) !important;
+    animation: float 3s ease-in-out infinite !important;
+}
+
+.challenge-title h1 {
+    font-family: 'Orbitron', sans-serif !important;
+    font-size: 2.5rem !important;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color)) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    margin-bottom: 1rem !important;
+    text-shadow: 0 0 30px rgba(0, 255, 136, 0.5) !important;
+}
+
+.challenge-description {
+    color: var(--text-secondary) !important;
+    font-size: 1.2rem !important;
+    margin-bottom: 1.5rem !important;
+    line-height: 1.6 !important;
+    font-family: 'Roboto', sans-serif !important;
+}
+
+.challenge-meta {
+    display: flex !important;
+    justify-content: center !important;
+    gap: 1rem !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+}
+
+.difficulty-badge {
+    padding: 0.5rem 1.2rem !important;
+    border-radius: 25px !important;
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    font-family: 'Orbitron', sans-serif !important;
+}
+
+.difficulty-badge.easy {
+    background: rgba(0, 255, 136, 0.2) !important;
+    color: var(--primary-color) !important;
+    border: 2px solid var(--primary-color) !important;
+    box-shadow: 0 0 15px rgba(0, 255, 136, 0.3) !important;
+}
+
+.difficulty-badge.medium {
+    background: rgba(255, 165, 0, 0.2) !important;
+    color: #ffa500 !important;
+    border: 2px solid #ffa500 !important;
+    box-shadow: 0 0 15px rgba(255, 165, 0, 0.3) !important;
+}
+
+.difficulty-badge.hard {
+    background: rgba(255, 0, 136, 0.2) !important;
+    color: var(--accent-color) !important;
+    border: 2px solid var(--accent-color) !important;
+    box-shadow: 0 0 15px rgba(255, 0, 136, 0.3) !important;
+}
+
+.points-badge {
+    background: linear-gradient(135deg, #ffa500, #ff8c00) !important;
+    color: #000 !important;
+    padding: 0.5rem 1.2rem !important;
+    border-radius: 25px !important;
+    font-size: 0.9rem !important;
+    font-weight: bold !important;
+    font-family: 'Orbitron', sans-serif !important;
+    box-shadow: 0 0 15px rgba(255, 165, 0, 0.3) !important;
+}
+
+/* Адаптивность для заголовков */
+@media (max-width: 768px) {
+    .challenge-title {
+        padding: 2rem 1.5rem !important;
+        margin: 0 1rem !important;
+    }
+
+    .challenge-title h1 {
+        font-size: 2rem !important;
+    }
+
+    .challenge-icon {
+        font-size: 3rem !important;
+    }
+
+    .challenge-description {
+        font-size: 1.1rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .challenge-title {
+        padding: 1.5rem 1rem !important;
+    }
+
+    .challenge-title h1 {
+        font-size: 1.7rem !important;
+    }
+
+    .challenge-icon {
+        font-size: 2.5rem !important;
+    }
+
+    .challenge-meta {
+        flex-direction: column !important;
+        gap: 0.5rem !important;
+    }
+}
